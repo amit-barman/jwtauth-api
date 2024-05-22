@@ -1,7 +1,7 @@
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
 
-namespace userauthentication.Repository;
+namespace userauthentication.Repositories;
 
 public interface IUserRepository
 {

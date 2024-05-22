@@ -11,7 +11,7 @@ using userauthentication.Data;
 namespace userauthentication.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20240520051320_InitialCreate")]
+    [Migration("20240521082738_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -53,6 +53,12 @@ namespace userauthentication.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
                         .HasColumnType("BLOB");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RefreshTokenExpirationTime")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Uid")
                         .IsRequired()

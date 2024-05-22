@@ -3,7 +3,7 @@ using userauthentication.Models;
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
 using Microsoft.AspNetCore.Authorization;
-using userauthentication.Repository;
+using userauthentication.Repositories;
 
 [ApiController]
 [Route("api/[controller]")]

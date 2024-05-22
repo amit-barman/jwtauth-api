@@ -6,7 +6,7 @@ using userauthentication.Utilities;
 using System.Security.Claims;
 using userauthentication.Services;
 
-namespace userauthentication.Repository;
+namespace userauthentication.Repositories;
 
 public class AdminRepository : IAdminRepository
 {

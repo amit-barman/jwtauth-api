@@ -51,6 +51,12 @@ namespace userauthentication.Migrations
                         .IsRequired()
                         .HasColumnType("BLOB");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RefreshTokenExpirationTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Uid")
                         .IsRequired()
                         .HasColumnType("TEXT");

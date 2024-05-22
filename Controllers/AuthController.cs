@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
 using Microsoft.AspNetCore.Authorization;
-using userauthentication.Repository;
+using userauthentication.Repositories;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -28,10 +28,22 @@ public class AuthController : ControllerBase
 	[HttpPost("login")]
 	public async Task<ActionResult> Login(UserLoginRequest request)
 	{
-		TokenResponse? result = await _authrepository.Login(request);
+		LoginResponse? result = await _authrepository.Login(request);
 
 		if(result == null) return BadRequest(
 			new GeneralResponse(false, "Invalid Login Credentials.")
+		);
+
+		return Ok(result);
+	}
+
+	[HttpPost("refresh-token")]
+	public async Task<ActionResult> RefreshToken([FromBody] string RefreshToken)
+	{
+		LoginResponse? result = await _authrepository.RefreshToken(RefreshToken);
+
+		if(result == null) return Unauthorized(
+			new GeneralResponse(false, "Invalid Refresh Token.")
 		);
 
 		return Ok(result);
@@ -67,6 +79,13 @@ public class AuthController : ControllerBase
 		GeneralResponse result = await _authrepository.ResetPassword(request);
 		if(result.status == false) return BadRequest(result);
 		return Ok(result);
+	}
+
+	[HttpDelete("logout"), Authorize]
+	public async Task<ActionResult> Logout()
+	{
+		await _authrepository.Logout();
+		return Ok(new GeneralResponse(true, "User Logout Successfully."));
 	}
 
 	// User After Authorization

@@ -8,7 +8,7 @@ namespace userauthentication.Utilities;
 
 public sealed class CreateJWTToken
 {
-	public static string CreateToken(User user, string secretKey, int JWTExpirationTime)
+	public static string CreateToken(User user, string secretKey, double JWTExpirationTime)
 	{
 		List<Claim> clames = new List<Claim> {
 			new Claim(ClaimTypes.Name, user.Uid),
@@ -27,7 +27,7 @@ public sealed class CreateJWTToken
 
 		var token = new JwtSecurityToken(
 			claims: clames,
-			expires: DateTime.Now.AddHours(JWTExpirationTime),
+			expires: DateTime.Now.AddMinutes(JWTExpirationTime),
 			signingCredentials: signingCredential
 		);
 

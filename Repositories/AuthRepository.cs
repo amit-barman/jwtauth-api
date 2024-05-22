@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using userauthentication.Services;
 
-namespace userauthentication.Repository;
+namespace userauthentication.Repositories;
 
 public class AuthRepository : IAuthRepository
 {
@@ -17,7 +17,8 @@ public class AuthRepository : IAuthRepository
 
 	private const string UserDefaultPrivilege = "User";
 	private const int ResetTokenExpirationTimeInHours = 4;
-	private const int JWTExpirationTimeInHours = 4;
+	private const double JWTExpirationTimeInMinutes = .08333; // 5 Minutes
+	private const int RefreshTokenExpirationTimeInHours = 4;
 
 	public AuthRepository( UserDbContext context, IConfiguration configuration, 
 		IUserService userservice )
@@ -43,7 +44,7 @@ public class AuthRepository : IAuthRepository
 	}
 
 	// Login User
-	public async Task<TokenResponse?> Login(UserLoginRequest request)
+	public async Task<LoginResponse?> Login(UserLoginRequest request)
 	{
 		User user = _context.Users.FirstOrDefault(u => u.Email == request.Email);
 
@@ -57,20 +58,47 @@ public class AuthRepository : IAuthRepository
 			return null;
 		}
 
-		string secretKey = _configuration.GetSection("AppSettings:JWTSecretKey").Value!;
-		string authToken = CreateJWTToken.CreateToken(
-			user, 
-			secretKey, 
-			JWTExpirationTimeInHours
-		);
+		string authToken = CreateAccessToken(user);
+		string refreshToken = CreateRefreshToken.RefreshToken();
 
-		return new TokenResponse(true, authToken, "Login Successful.");
+		// Check For Duplicate Entry
+		while(_context.Users.Any(u => u.RefreshToken == refreshToken))
+		{
+			refreshToken = CreateRefreshToken.RefreshToken();
+		}
+
+		user.RefreshToken = refreshToken;
+		user.RefreshTokenExpirationTime = DateTime.Now.AddHours(RefreshTokenExpirationTimeInHours);
+
+		await _context.SaveChangesAsync();
+
+		return new LoginResponse(true, authToken, refreshToken, "Login Successful.");
+	}
+
+	// Refresh Token
+	public async Task<LoginResponse?> RefreshToken(string RefreshToken)
+	{
+		User user = _context.Users.FirstOrDefault(u => u.RefreshToken == RefreshToken);
+		if(user == null) return null;
+
+		if(user.RefreshTokenExpirationTime < DateTime.Now) return null;
+
+		string authToken = CreateAccessToken(user);
+
+		return new LoginResponse(
+			true, 
+			authToken, 
+			RefreshToken, 
+			"New Access Token Generaed Successfully."
+		);
 	}
 
 	// Verify User
 	public async Task<GeneralResponse> Verify(string varificatonToken)
 	{
-		var user = _context.Users.FirstOrDefault(u => u.EmailVerificationToken == varificatonToken);
+		var user = _context.Users.FirstOrDefault(
+			u => u.EmailVerificationToken == varificatonToken
+		);
 
 		if(user == null) return new GeneralResponse(false, "Invalid Token.");
 
@@ -130,9 +158,36 @@ public class AuthRepository : IAuthRepository
 		user.PasswordSalt = passwordsalt;
 		user.PasswordResetToken = null;
 		user.PasswordResetTokenExpires = null;
+		user.RefreshToken = null;
+		user.RefreshTokenExpirationTime = null;
 
 		await _context.SaveChangesAsync();
 
 		return new GeneralResponse(true, "Password Reset Successfully.");
+	}
+
+	// Logout User
+	public async Task Logout()
+	{
+		string userInfo = _userservice.getCurrentUser(ClaimTypes.Name);
+
+		var user = _context.Users.FirstOrDefault(u => u.Uid == userInfo);
+
+		user.RefreshToken = null;
+		user.RefreshTokenExpirationTime = null;
+
+		await _context.SaveChangesAsync();
+	}
+
+	// Helper Methods
+	private string CreateAccessToken(User user)
+	{
+		string secretKey = _configuration.GetSection("AppSettings:JWTSecretKey").Value!;
+		string authToken = CreateJWTToken.CreateToken(
+			user, 
+			secretKey, 
+			JWTExpirationTimeInMinutes
+		);
+		return authToken;
 	}
 }

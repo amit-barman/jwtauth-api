@@ -6,15 +6,14 @@ using userauthentication.Utilities;
 using System.Security.Claims;
 using userauthentication.Services;
 
-namespace userauthentication.Repository;
+namespace userauthentication.Repositories;
 
 public class UserRepository : IUserRepository
 {
 	private readonly UserDbContext _context;
 	private readonly IUserService _userservice;
 
-	public UserRepository(UserDbContext context, IHttpContextAccessor httpconext,
-		IUserService userservice)
+	public UserRepository(UserDbContext context, IUserService userservice)
 	{
 		_context = context;
 		_userservice = userservice;

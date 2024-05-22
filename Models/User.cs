@@ -16,6 +16,10 @@ public class User
 
 	public string AccountType { get; set; } = string.Empty;
 
+	public string? RefreshToken { get; set; }
+
+	public DateTime? RefreshTokenExpirationTime { get; set; }
+
 	public string? EmailVerificationToken { get; set; }
 
 	public DateTime? VerifiedAt { get; set; }

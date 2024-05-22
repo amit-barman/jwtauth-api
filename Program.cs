@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using userauthentication.Repository;
+using userauthentication.Repositories;
 using userauthentication.Services;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,13 +1,13 @@
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
 
-namespace userauthentication.Repository;
+namespace userauthentication.Repositories;
 
 public interface IAuthRepository
 {
 	Task<GeneralResponse> Register(UserRegisterRequest request);
 
-	Task<TokenResponse?> Login(UserLoginRequest request);
+	Task<LoginResponse?> Login(UserLoginRequest request);
 
 	Task<GeneralResponse> Verify(string varificatonToken);
 
@@ -16,4 +16,8 @@ public interface IAuthRepository
 	Task<GeneralResponse> ForgotPassword(ForgotPasswordRequest request);
 
 	Task<GeneralResponse> ResetPassword(PasswordResetRequest request);
+
+	Task<LoginResponse?> RefreshToken(string RefreshToken);
+
+	Task Logout();
 }

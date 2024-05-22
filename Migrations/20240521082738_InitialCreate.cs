@@ -23,6 +23,8 @@ namespace userauthentication.Migrations
                     PasswordSalt = table.Column<byte[]>(type: "BLOB", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     AccountType = table.Column<string>(type: "TEXT", nullable: false),
+                    RefreshToken = table.Column<string>(type: "TEXT", nullable: true),
+                    RefreshTokenExpirationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     EmailVerificationToken = table.Column<string>(type: "TEXT", nullable: true),
                     VerifiedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     PasswordResetToken = table.Column<string>(type: "TEXT", nullable: true),
