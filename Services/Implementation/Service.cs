@@ -2,17 +2,18 @@ using userauthentication.Models;
 using userauthentication.Data;
 using userauthentication.Utilities;
 using System.Security.Claims;
+using userauthentication.Repositories;
 
-namespace userauthentication.Services;
+namespace userauthentication.Services.Implementation;
 
-public class UserService : IUserService
+public class Service : IService
 {
-	private readonly UserDbContext _context;
+	private readonly IUserRepository _userrepository;
 	private readonly IHttpContextAccessor _httpconext;
 
-	public UserService(UserDbContext context, IHttpContextAccessor httpconext)
+	public Service(IUserRepository userrepository, IHttpContextAccessor httpconext)
 	{
-		_context = context;
+		_userrepository = userrepository;
 		_httpconext = httpconext;
 	}
 
@@ -21,7 +22,7 @@ public class UserService : IUserService
 	{
 		string uid = Guid.NewGuid().ToString();
 
-		while(_context.Users.Any(u => u.Uid == uid))
+		while (_userrepository.FindById(uid) != null)
 		{
 			uid = Guid.NewGuid().ToString();
 		}
@@ -41,24 +42,26 @@ public class UserService : IUserService
 			EmailVerificationToken = emailVerificationToken
 		};
 
-		_context.Users.Add(user);
-		await _context.SaveChangesAsync();
+		_userrepository.Add(user);
+		await _userrepository.SaveAsync();
 	}
 
 	// Update User Data
-	public async Task<bool> UpdateUserDataAsync(string Uid, string? Email, 
+	public async Task<bool> UpdateUserDataAsync(string Uid, string? Email,
 		string? AccountType)
 	{
-		User user = _context.Users.FirstOrDefault(u => u.Uid == Uid);
+		User? user = _userrepository.FindById(Uid);
 
-		if(user == null) return false;
-		
-		if(_context.Users.Any(u => u.Email == Email) && user.Email != Email) return false;
+		if (user == null) return false;
+		if (Email != null)
+		{
+			if (_userrepository.FindByEmail(Email) != null && user.Email != Email) return false;
+		}
 
 		user.Email = Email ?? user.Email;
 		user.AccountType = AccountType ?? user.AccountType;
 
-		await _context.SaveChangesAsync();
+		await _userrepository.SaveAsync();
 
 		return true;
 	}

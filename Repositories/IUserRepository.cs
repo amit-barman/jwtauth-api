@@ -1,11 +1,17 @@
-using userauthentication.DTO.Request;
-using userauthentication.DTO.Response;
+using userauthentication.Models;
 
-namespace userauthentication.Repositories;
-
-public interface IUserRepository
+namespace userauthentication.Repositories
 {
-	UserInfoResponse UserInfo();
-
-	Task<GeneralResponse> UpdateUserInfo(UserUpdateRequest request);
+    public interface IUserRepository
+    {
+        List<User> GetAll();
+        User? FindById(string Uid);
+        User? FindByEmail(string Email);
+        User? FindByRefreshToken(string RefreshToken);
+        User? FindByVerificationToken(string VerificationToken);
+        User? FindByPasswordResetToken(string PasswordResetToken);
+        void Add(User user);
+        void Remove(User user);
+        Task SaveAsync();
+    }
 }

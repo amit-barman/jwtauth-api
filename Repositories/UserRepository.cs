@@ -1,50 +1,59 @@
-using userauthentication.Models;
-using userauthentication.DTO.Request;
-using userauthentication.DTO.Response;
 using userauthentication.Data;
-using userauthentication.Utilities;
-using System.Security.Claims;
-using userauthentication.Services;
+using userauthentication.Models;
 
-namespace userauthentication.Repositories;
-
-public class UserRepository : IUserRepository
+namespace userauthentication.Repositories
 {
-	private readonly UserDbContext _context;
-	private readonly IUserService _userservice;
+    public class UserRepository : IUserRepository
+    {
+        private readonly UserDbContext _context;
+        public UserRepository(UserDbContext context)
+        {
+            _context = context;
+        }
 
-	public UserRepository(UserDbContext context, IUserService userservice)
-	{
-		_context = context;
-		_userservice = userservice;
-	}
+        public void Add(User user)
+        {
+            _context.Users.Add(user);
+        }
 
-	// User Info
-	public UserInfoResponse UserInfo()
-	{		
-		string userInfo = _userservice.getCurrentUser(ClaimTypes.Name);
+        public User? FindByEmail(string Email)
+        {
+            return _context.Users.FirstOrDefault(u => u.Email == Email);
+        }
 
-		User user = _context.Users.Single(user => user.Uid == userInfo);
+        public User? FindById(string Uid)
+        {
+            return _context.Users.FirstOrDefault(u => u.Uid == Uid);
+        }
 
-		return new UserInfoResponse(
-			user.Id,
-			user.Uid,
-			user.Email,
-			user.CreatedAt,
-			user.AccountType,
-			user.VerifiedAt
-		);
-	}
+        public User? FindByPasswordResetToken(string PasswordResetToken)
+        {
+            return _context.Users.FirstOrDefault(u => u.PasswordResetToken == PasswordResetToken);
+        }
 
-	public async Task<GeneralResponse> UpdateUserInfo(UserUpdateRequest request)
-	{
-		string userInfo = _userservice.getCurrentUser(ClaimTypes.Name);
+        public User? FindByRefreshToken(string RefreshToken)
+        {
+            return _context.Users.FirstOrDefault(u => u.RefreshToken == RefreshToken);
+        }
 
-		// Updated Data
-		bool status = await _userservice.UpdateUserDataAsync(userInfo, request.Email, null);
+        public User? FindByVerificationToken(string VerificationToken)
+        {
+            return _context.Users.FirstOrDefault(u => u.EmailVerificationToken == VerificationToken);
+        }
 
-		if(!status) return new GeneralResponse(false, "Unable to Update Information");
+        public List<User> GetAll()
+        {
+            return _context.Users.ToList();
+        }
 
-		return new GeneralResponse(true, "Information Updated Successfully.");
-	}
+        public void Remove(User user)
+        {
+            _context.Users.Remove(user);
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+    }
 }

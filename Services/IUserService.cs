@@ -1,12 +1,11 @@
-using userauthentication.Models;
+using userauthentication.DTO.Request;
+using userauthentication.DTO.Response;
 
 namespace userauthentication.Services;
 
 public interface IUserService
 {
-	Task RegisterUserAsync(string email, string password, string role);
+	UserInfoResponse UserInfo();
 
-	Task<bool> UpdateUserDataAsync(string Uid, string? Email, string? AccountType);
-
-	string getCurrentUser(string ClaimedUser);
+	Task<GeneralResponse> UpdateUserInfo(UserUpdateRequest request);
 }

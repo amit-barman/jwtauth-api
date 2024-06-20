@@ -2,9 +2,9 @@ using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
 using userauthentication.Models;
 
-namespace userauthentication.Repositories;
+namespace userauthentication.Services;
 
-public interface IAdminRepository
+public interface IAdminService
 {
 	Task<List<User>> Users();
 
