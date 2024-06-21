@@ -1,10 +1,9 @@
 using userauthentication.Models;
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
-using userauthentication.Data;
-using userauthentication.Utilities;
 using System.Security.Claims;
 using userauthentication.Repositories;
+using userauthentication.EntityBuilder;
 
 namespace userauthentication.Services.Implementation;
 
@@ -68,16 +67,19 @@ public class AdminService : IAdminService
 	// Update Any User Info using UID
 	public async Task<GeneralResponse> UpdateUser(UserEditRequest request)
 	{
-		bool status = await _service.UpdateUserDataAsync(
-			request.Uid,
-			request.Email,
-			request.AccountType
-		);
+		User? user = _userrepository.FindById(request.Uid);
 
-		if (!status)
-		{
-			return new GeneralResponse(false, "Unable to Update Information!");
-		}
+		if (user == null) return new GeneralResponse(false, "Unable to Update Information");
+		if (_userrepository.FindByEmail(request.Email) != null && user.Email != request.Email)
+			return new GeneralResponse(false, "Unable to Update Information");
+
+		User UpdatedUser = new UserBuilder(user)
+			.SetEmail(request.Email)
+			.SetAccountType(request.AccountType)
+			.BuildUser();
+
+		_userrepository.Update(user, UpdatedUser);
+		await _userrepository.SaveAsync();
 
 		return new GeneralResponse(true, "Information Updated Successfully.");
 	}

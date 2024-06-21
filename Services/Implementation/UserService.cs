@@ -1,11 +1,9 @@
 using userauthentication.Models;
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
-using userauthentication.Data;
-using userauthentication.Utilities;
 using System.Security.Claims;
-using userauthentication.Services;
 using userauthentication.Repositories;
+using userauthentication.EntityBuilder;
 
 namespace userauthentication.Services.Implementation;
 
@@ -22,7 +20,7 @@ public class UserService : IUserService
 
 	// User Info
 	public UserInfoResponse UserInfo()
-	{		
+	{
 		string userInfo = _service.getCurrentUser(ClaimTypes.Name);
 
 		User? user = _userrepository.FindById(userInfo);
@@ -41,10 +39,18 @@ public class UserService : IUserService
 	{
 		string userInfo = _service.getCurrentUser(ClaimTypes.Name);
 
-		// Updated Data
-		bool status = await _service.UpdateUserDataAsync(userInfo, request.Email, null);
+		User? user = _userrepository.FindById(userInfo);
 
-		if(!status) return new GeneralResponse(false, "Unable to Update Information");
+		if (user == null) return new GeneralResponse(false, "Unable to Update Information");
+		if (_userrepository.FindByEmail(request.Email) != null && user.Email != request.Email)
+			return new GeneralResponse(false, "Unable to Update Information");
+
+		User UpdatedUser = new UserBuilder(user)
+			.SetEmail(request.Email)
+			.BuildUser();
+
+		_userrepository.Update(user, UpdatedUser);
+		await _userrepository.SaveAsync();
 
 		return new GeneralResponse(true, "Information Updated Successfully.");
 	}

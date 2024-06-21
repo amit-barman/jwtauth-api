@@ -2,7 +2,6 @@ using userauthentication.Models;
 using userauthentication.DTO.Request;
 using userauthentication.DTO.Response;
 using userauthentication.Utilities;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using userauthentication.Repositories;
 
@@ -13,7 +12,6 @@ namespace userauthentication.Services.Implementation
 		private readonly IConfiguration _configuration;
 		private readonly IUserRepository _userrepository;
 		private readonly IService _service;
-
 		private const string UserDefaultPrivilege = "User";
 		private const int ResetTokenExpirationTimeInHours = 4;
 		private const double JWTExpirationTimeInMinutes = .08333; // 5 Minutes
@@ -32,7 +30,7 @@ namespace userauthentication.Services.Implementation
 			if (_userrepository.FindByEmail(request.Email) != null)
 				return new GeneralResponse(false, "Email Already Exist.");
 
-			await _service.RegisterUserAsync(
+			await _service.RegisterUserAsync (
 				request.Email,
 				request.Password,
 				UserDefaultPrivilege    // Default Privilege of an User

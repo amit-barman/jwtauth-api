@@ -46,26 +46,6 @@ public class Service : IService
 		await _userrepository.SaveAsync();
 	}
 
-	// Update User Data
-	public async Task<bool> UpdateUserDataAsync(string Uid, string? Email,
-		string? AccountType)
-	{
-		User? user = _userrepository.FindById(Uid);
-
-		if (user == null) return false;
-		if (Email != null)
-		{
-			if (_userrepository.FindByEmail(Email) != null && user.Email != Email) return false;
-		}
-
-		user.Email = Email ?? user.Email;
-		user.AccountType = AccountType ?? user.AccountType;
-
-		await _userrepository.SaveAsync();
-
-		return true;
-	}
-
 	// Get Claimed User
 	public string getCurrentUser(string ClaimedUser)
 	{

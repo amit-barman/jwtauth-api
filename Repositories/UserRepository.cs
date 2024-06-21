@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using userauthentication.Data;
 using userauthentication.Models;
 
@@ -54,6 +55,12 @@ namespace userauthentication.Repositories
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public void Update(User user, User userUpdated)
+        {
+            _context.Users.Entry(user).State = EntityState.Detached;
+            _context.Users.Entry(userUpdated).State = EntityState.Modified;
         }
     }
 }

@@ -11,6 +11,7 @@ namespace userauthentication.Repositories
         User? FindByVerificationToken(string VerificationToken);
         User? FindByPasswordResetToken(string PasswordResetToken);
         void Add(User user);
+        void Update(User user, User userUpdated);
         void Remove(User user);
         Task SaveAsync();
     }
